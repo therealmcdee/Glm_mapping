@@ -180,17 +180,28 @@ def predict_G(fitl,Bx,By,Bz,positions):
 
 fitl = 4
 
+maxr = 1    # maximum radius from central axis you want to include
+maxh = 1    # maximum height from z = 0 you want to include 
+scale = 1   # might want to change the scale of data (Tesla -> microTesla)
+
+
+
+
 filename = "{}".format(sys.argv[1])
 
 df = pd.read_csv(filename,header=0)
 
-positions = np.zeros((len(df),3))
-positions[:,0] = df['x']
-positions[:,1] = df['y']
-positions[:,2] = df['z']
-Bxmeas = df['Bx']
-Bymeas = df['By']
-Bzmeas = df['Bz']
+df_cut = df[((df['x']**2+df['y']**2)**(0.5)<=maxr)&(abs(df['z'])<=maxh)&(df['x']!=0)&(df['y']!=0)]
+df_cut = df_cut.reset_index()
+
+
+positions = np.zeros((len(df_cut),3))
+positions[:,0] = df_cut['x']
+positions[:,1] = df_cut['y']
+positions[:,2] = df_cut['z']
+Bxmeas = df_cut['Bx']*scale
+Bymeas = df_cut['By']*scale
+Bzmeas = df_cut['Bz']*scale
 
 Bx,By,Bz = transpose_vector(Bxmeas),transpose_vector(Bymeas),transpose_vector(Bzmeas)
 
